@@ -1,0 +1,59 @@
+snippet newdoc "Document Setup" bA
+\documentclass[a4paper,10pt]{article}
+
+\title{$1}
+\author{James Rogers}
+\date{Last Updated: \today}
+
+\begin{document}
+
+% TITLE PAGE
+\maketitle
+\tableofcontents
+\newpage
+
+$0
+
+\end{document}
+endsnippet
+
+snippet '^((\w*\/)*\w*\.(pdf|png|jpg|jpeg))$' "fig environment" rA
+\begin{figure}
+  \centering
+  \includegraphics[width=$1\linewidth${2/.+/, height=/}${2:<++>}]{${3:`!p snip.rv = match.group(1)`}}
+  \label{fig:$3}${4/.+/\n  \\caption{/}${4:<++>}${4/.+/}/}
+\end{figure}
+$0
+endsnippet
+
+snippet beg "\begin{} \end{}" A
+\begin{$1}
+$2
+\end{$1}
+$0
+endsnippet
+
+snippet verb "\verb!!"
+\verb!$1!$0
+endsnippet
+
+snippet '(section|subsection)' "LaTeX macro" rA
+\\`!p snip.rv = match.group(1)`{$1}
+$0
+endsnippet
+
+snippet nt "\noindent" bA
+\noindent $0
+endsnippet
+
+snippet '(\^\^|__)' "super/subscript" rA
+`!p snip.rv = match.group(1)[0]`{$1} $0
+endsnippet
+
+snippet '((\d+)|(\d*)(\\)?([A-Za-z]+)((\^|_)(\{\d+\}|\d))*)/' "Fraction" wrA
+\\frac{`!p snip.rv = match.group(1)`}{$1}$0
+endsnippet
+
+snippet / "visual Fraction" iA
+\\frac{${VISUAL}}{$1}$0
+endsnippet
