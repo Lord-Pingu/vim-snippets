@@ -85,3 +85,21 @@ endsnippet
 snippet return "return ;" A
 return $1;$0
 endsnippet
+
+snippet if "if () {}" 
+if ($1) {
+	$2
+} $0
+endsnippet
+
+snippet '} elif' "elif () {}"
+} elif ($1) {
+	$2
+} $0;
+endsnippet
+
+snippet '} else' "else {}"
+} else {
+	$1
+}$0
+endsnippet
