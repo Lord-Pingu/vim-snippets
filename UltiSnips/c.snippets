@@ -46,9 +46,9 @@ do {
 endsnippet
 
 snippet while "while () {}" A
-while ($1) {
+while ($1) ${2/\n/\{/}
 	$2
-}$0
+${2/\n/\{/} $0
 endsnippet
 
 snippet switch "switch statement" A
