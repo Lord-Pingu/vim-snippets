@@ -1,0 +1,9 @@
+priority 0
+
+snippet '(\(\)|\[\]|\{\})' "double bracket" wrtA
+`!p snip.rv = match.group(1)[0]`$1`!p snip.rv = match.group(1)[1]`$0
+endsnippet
+
+snippet <> "angle brackets" A
+<$1>$0
+endsnippet
