@@ -10,12 +10,12 @@ def autocomplete(t, opts):
 		return opts[0]
 	return "(" + "|".join(opts) + ")" 
 
-# returns a matching bracket or quote
-def matching_bracket(r):
-	pairs = {"(": ")", "<": ">", "[": "]", "{": "}", "'": "'", '"': '"'}
-	return pairs[r]
-
 endglobal
+
+
+################################################################################
+#                          C PREPROCESSOR SNIPPETS                             #
+################################################################################
 
 snippet # "preprocessors" bA
 #$1`!p
@@ -23,85 +23,117 @@ preprocessors = ["define", "include", "undef", "ifdef", "ifndef", "if", "else", 
 snip.rv = autocomplete(t[1], preprocessors)` $0
 endsnippet
 
-snippet '\s(\(|\[|\{|"|\'|<)' "brackets and quotes" rw
- `!p snip.rv = match.group(1)`$1`!p snip.rv = matching_bracket(match.group(1))`$0
+snippet '#include ("|<)' "include" rA
+#include `!p snip.rv = match.group(1)`$1`!p snip.rv = '>' if match.group(1) == '<' else '"'`
 endsnippet
 
-snippet '(\w+(\s|\*)+\w+)\s*\((.*)\)' "function def" rbA
-`!p snip.rv = match.group(1) + f" ({match.group(3)})" if match.group(3) else f"{match.group(1)} (void)"`
+
+################################################################################
+#                           C FUNCTION SNIPPETS                                #
+################################################################################
+
+snippet '((\w+)(\s|\*)+\w+)\s*\((.*)\)' "function decleration" rbA
+`!p snip.rv = match.group(1) + f" ( {match.group(4).strip()} )" if match.group(4) else f"{match.group(1)} ( void )"`
 {
-	$1
+	$1`!p snip.rv = "\n\treturn" if match.group(2) != "void" else ""`
 }
 $0
 endsnippet
 
+snippet f "function decleration"
+$1 ( $2 )
+{
+	$3`!p snip.rv = "\n\treturn" if "void" not in t[1].split() else ""`
+}$0
+endsnippet
+
+################################################################################
+#                           C PROCEEDURAL SNIPPETS                             #
+################################################################################
+
+snippet for "for loop"
+for ( int $1=${2:0} ; $1 $3 ; $1${4:++} ) `!p snip.rv = "{" if t[5].count("\n\t") else ""`
+	$5
+`!p snip.rv = "}" if t[5].count("\n\t") else ""`$0
+endsnippet
+
+snippet while "while loop"
+while ( $1 ) `!p snip.rv = "{" if t[2].count("\n\t") else ""`
+	$2
+`!p snip.rv = "}" if t[2].count("\n\t") else ""`$0
+endsnippet
+
+snippet do "do while loop"
+do {
+	$1
+} while ( $2 );$0
+endsnippet
+
+snippet switch "switch case"
+switch ( $1 ) {
+	${2:case}
+}$0
+endsnippet
+
+snippet case "case"
+case $1:
+	$0
+endsnippet
+
+snippet 'if(\{?)' "if" r
+if ( $1 ) `!p snip.rv = "{" if match.group(1) else ""`
+	$2
+`!p snip.rv = "}" if match.group(1) else ""`
+endsnippet
+
+snippet 'elif(\{?)' "else if" r
+else if ( $1 ) `!p snip.rv = "{" if match.group(1) else ""`
+	$2
+`!p snip.rv = "}" if match.group(1) else ""`
+endsnippet
+
+################################################################################
+#                            C KEYWORD SNIPPETS                                #
+################################################################################
+
+snippet nn "NULL" A
+NULL$0
+endsnippet
+
+snippet 'sf' "sizeof" r
+sizeof( $1 )$0
+endsnippet
+
+snippet printf "printf;" A
+printf( "$1${2:\n}"${3/.+/, /}$3 );$0
+endsnippet
+
+snippet malloc "malloc with typecast;" A
+${1/.+/\( /}$1${1/.+/ \) /}malloc($2);$0
+endsnippet
+
 snippet het "heterogeneous data types" 
-$1`!p snip.rv = autocomplete(t[1], ["enum", "union", "struct"])` $2${2/.+/ /}{
+${1|struct,union,enum|} $2${2/.+/ /}{
 	$4
 }${3/.+/ /}$3;$0
 endsnippet
 
-snippet do "do {} while ();" A
-do {
-	$2
-} while ($1);$0
+################################################################################
+#                               C MISC SNIPPETS                                #
+################################################################################
+
+snippet // "comment"
+/* $1 */$0
 endsnippet
 
-snippet while "while () {}" A
-while ($1) ${2/\n/\{/}
-	$2
-${2/\n/\{/} $0
-endsnippet
+################################################################################
+#                              C GTEST SNIPPETS                                #
+################################################################################
 
-snippet switch "switch statement" A
-switch ($1)
-{
-	${2:*cases*}
-}
-endsnippet
-
-snippet case "case" A
-case $1:
-	$2
-$0
-endsnippet
-
-snippet for "for () {}"
-for (int ${1:i} = ${2:0}; $1 ${3:<} $4; $1${5:--/++}) {
-	$6
+snippet TEST "gtest unittest"
+TEST ( $2 ) {
+	$3
+	EXPECT_$1`!p snip.rv = autocomplete(t[1], ["EQ", "NE", "LE", "GT", "FALSE", "TRUE", "STREQ", "STRNE", "STRCASEEQ", "STRCASENE"])`( $4 );
 }$0
 endsnippet
 
-snippet printf "printf();" A
-printf("$1${2:\n}"${3/.+/, /}$3);$0
-endsnippet
-
-snippet malloc "(<type cast>) malloc();" A
-${1/.+/\(/}$1${1/.+/\) /}malloc($2);$0
-endsnippet
-
-snippet 'sizeof' "sizeof()" rA
-sizeof($1)$0
-endsnippet
-
-snippet return "return ;" A
-return $1;$0
-endsnippet
-
-snippet if "if () {}" 
-if ($1) {
-	$2
-} $0
-endsnippet
-
-snippet '} elif' "elif () {}"
-} elif ($1) {
-	$2
-} $0
-endsnippet
-
-snippet '} else' "else {}"
-} else {
-	$1
-}$0
-endsnippet
